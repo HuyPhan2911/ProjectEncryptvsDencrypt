@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Encryption / Decryption Tool</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Encryption / Decryption Tool</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <!-- INPUT FILE -->
+        <div class="form-group">
+            <label for="input_file">Input File (File cần mã hóa / giải mã)</label>
+            <input type="file" id="input_file" name="input_file" required>
+        </div>
+
+        <!-- OUTPUT FILE -->
+        <div class="form-group">
+            <label for="output_file">Output File Name (Tên file kết quả)</label>
+            <input
+                type="text"
+                id="output_file"
+                name="output_file"
+                placeholder="output.bin"
+                required
+            >
+        </div>
+
+        <!-- ALGORITHM -->
+        <div class="form-group">
+            <label>Encryption Algorithm (Thuật toán)</label>
+
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="algorithm" value="aes" checked>
+                    AES
+                </label>
+
+                <label>
+                    <input type="radio" name="algorithm" value="des">
+                    DES
+                </label>
+
+                <label>
+                    <input type="radio" name="algorithm" value="3des">
+                    Triple DES
+                </label>
+
+                <label>
+                    <input type="radio" name="algorithm" value="rsa">
+                    RSA
+                </label>
+            </div>
+        </div>
+
+        <!-- SECRET KEY -->
+        <div class="form-group">
+            <label for="key">Secret Key (Khóa bí mật)</label>
+            <input
+                type="text"
+                id="key"
+                name="key"
+                placeholder="Enter secret key here"
+            >
+        </div>
+
+        <!-- ACTION -->
+        <div class="button-group">
+            <button type="submit" name="action" value="encrypt">
+                🔒 Encrypt
+            </button>
+
+            <button type="submit" name="action" value="decrypt">
+                🔓 Decrypt
+            </button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+</html>
