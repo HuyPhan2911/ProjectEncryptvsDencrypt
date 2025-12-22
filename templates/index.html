@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>Encryption / Decryption Tool</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .hint {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 
@@ -33,27 +40,11 @@
         <!-- ALGORITHM -->
         <div class="form-group">
             <label>Encryption Algorithm (Thuật toán)</label>
-
             <div class="radio-group">
-                <label>
-                    <input type="radio" name="algorithm" value="aes" checked>
-                    AES
-                </label>
-
-                <label>
-                    <input type="radio" name="algorithm" value="des">
-                    DES
-                </label>
-
-                <label>
-                    <input type="radio" name="algorithm" value="3des">
-                    Triple DES
-                </label>
-
-                <label>
-                    <input type="radio" name="algorithm" value="rsa">
-                    RSA
-                </label>
+                <label><input type="radio" name="algorithm" value="aes" checked> AES</label>
+                <label><input type="radio" name="algorithm" value="des"> DES</label>
+                <label><input type="radio" name="algorithm" value="3des"> Triple DES</label>
+                <label><input type="radio" name="algorithm" value="rsa"> RSA</label>
             </div>
         </div>
 
@@ -66,21 +57,43 @@
                 name="key"
                 placeholder="Enter secret key here"
             >
+            <div class="hint" id="key-hint">
+                AES: 16, 24 hoặc 32 ký tự | DES: 8 ký tự | Triple DES: 16 hoặc 24 ký tự | RSA: không cần nhập
+            </div>
         </div>
 
         <!-- ACTION -->
         <div class="button-group">
-            <button type="submit" name="action" value="encrypt">
-                🔒 Encrypt
-            </button>
-
-            <button type="submit" name="action" value="decrypt">
-                🔓 Decrypt
-            </button>
+            <button type="submit" name="action" value="encrypt">🔒 Encrypt</button>
+            <button type="submit" name="action" value="decrypt">🔓 Decrypt</button>
         </div>
 
     </form>
 </div>
+
+<script>
+    const radios = document.querySelectorAll('input[name="algorithm"]');
+    const hintDiv = document.getElementById('key-hint');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            switch(radio.value){
+                case 'aes':
+                    hintDiv.textContent = "AES: Nhập key 16 ký tự";
+                    break;
+                case 'des':
+                    hintDiv.textContent = "DES: Nhập key đúng 8 ký tự";
+                    break;
+                case '3des':
+                    hintDiv.textContent = "Triple DES: Nhập key 16 hoặc 24 ký tự";
+                    break;
+                case 'rsa':
+                    hintDiv.textContent = "RSA: Không cần nhập key";
+                    break;
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

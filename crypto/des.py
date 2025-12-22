@@ -199,10 +199,14 @@ class DES:
 # -----------------------------
 
 def encrypt(data: bytes, key: str) -> bytes:
-    return DES(normalize_key(key)).encrypt(data)
+    if len(key.encode()) != 8:
+        raise ValueError("❌ DES key phải đúng 8 ký tự")
+    return DES(key.encode()).encrypt(data)
 
 def decrypt(data: bytes, key: str) -> bytes:
-    return DES(normalize_key(key)).decrypt(data)
+    if len(key.encode()) != 8:
+        raise ValueError("❌ DES key phải đúng 8 ký tự")
+    return DES(key.encode()).decrypt(data)
 
 
 def normalize_key(key: str) -> bytes:

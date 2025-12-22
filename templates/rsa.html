@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA-OAEP-SHA256 Encryption</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: white;
+            color: #667eea;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .key-status {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .key-status.has-keys {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        
+        .key-status.no-keys {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+        
+        .key-display {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 15px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .form-group input[type="file"],
+        .form-group input[type="text"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        .btn-info:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 968px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #e6f7ff 0%, #d6efff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #1890ff;
+            margin-bottom: 20px;
+        }
+        
+        .info-box strong {
+            color: #0050b3;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff4e5 0%, #ffe6cc 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #ff9800;
+            margin-bottom: 20px;
+        }
+        
+        .warning-box strong {
+            color: #e65100;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .key-input-area {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .key-input-area.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> RSA-OAEP-SHA256</h1>
+        </div>
+
+        <!-- Key Status -->
+        <div class="section">
+            <div class="section-title"> Trạng thái khóa</div>
+            
+            {% if has_keys %}
+                <div class="key-status has-keys">
+                    Đã có cặp khóa RSA ({{ keys_info.key_size }} bits)
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="exportPublicKey()">
+                        Export khóa công khai
+                    </button>
+                    <button class="btn btn-info" onclick="exportPrivateKey()">
+                        Export khóa bí mật
+                    </button>
+                    <button class="btn btn-success" onclick="downloadBothKeys()">
+                        Tải cả 2 khóa
+                    </button>
+                </div>
+            {% else %}
+                <div class="key-status no-keys">
+                    Chưa có cặp khóa RSA
+                </div>
+                
+                <div class="info-box">
+                    <strong>Hướng dẫn:</strong>
+                    <ul>
+                        <li>Tạo khóa mới nếu bạn là <strong>người nhận</strong> (cần cả 2 khóa)</li>
+                        <li>Hoặc import khóa công khai nếu bạn là <strong>người gửi</strong> (chỉ cần khóa công khai)</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Generate Keys -->
+        <div class="section">
+            <div class="section-title"> Tạo cặp khóa mới</div>
+            
+            <div class="warning-box">
+                <strong> Lưu ý:</strong> Tạo khóa mới sẽ thay thế cặp khóa hiện tại. 
+                Bạn sẽ không thể giải mã các file đã mã hóa bằng khóa cũ!
+            </div>
+            
+            <form id="generateKeysForm">
+                <div class="form-group">
+                    <label>Độ dài khóa (bits):</label>
+                    <select name="key_size">
+                        <option value="1024">1024 bits</option>
+                        <option value="2048" selected>2048 bits</option>
+                        <option value="3072">3072 bits</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-danger">
+                     Tạo cặp khóa mới
+                </button>
+            </form>
+            
+            <div id="generateLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Đang tạo khóa... </p>
+            </div>
+            
+            <div id="generateMessage"></div>
+        </div>
+
+        <!-- Import Keys -->
+        <div class="two-columns">
+            <div class="section">
+                <div class="section-title"> Import khóa công khai</div>
+                <div class="info-box">
+                    <strong>Dành cho người mã hóa:</strong> Nhập khóa công khai từ người nhận
+                </div>
+                
+                <form id="importPublicKeyForm">
+                    <div class="form-group">
+                        <label>Khóa công khai (JSON format):</label>
+                        <textarea name="public_key" placeholder='{"e": 65537, "n": 123456..., "key_size": 2048}' required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                         Import khóa công khai
+                    </button>
+                </form>
+                
+                <div id="importPublicMessage"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"> Import khóa bí mật</div>
+                <div class="warning-box">
+                    <strong>Dành cho người giải mã:</strong> Nhập khóa bí mật của bạn
+                </div>
+                
+                <form id="importPrivateKeyForm">
+                    <div class="form-group">
+                        <label>Khóa bí mật (JSON format):</label>
+                        <textarea name="private_key" placeholder='{"d": 789012..., "n": 123456..., "key_size": 2048}' required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info">
+                         Import khóa bí mật
+                    </button>
+                </form>
+                
+                <div id="importPrivateMessage"></div>
+            </div>
+        </div>
+
+        <!-- Encryption/Decryption -->
+        <div class="two-columns">
+            <!-- Encrypt -->
+            <div class="section">
+                <div class="section-title"> Mã hóa</div>
+                
+                <div class="info-box">
+                    <strong>Chỉ cần khóa công khai</strong> của người nhận
+                </div>
+                
+                <form id="encryptForm">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="encryptUseInput" onchange="toggleKeyInput('encrypt')">
+                        <label for="encryptUseInput" style="margin: 0;">Nhập khóa công khai trực tiếp</label>
+                    </div>
+                    
+                    <div id="encryptKeyInput" class="key-input-area">
+                        <div class="form-group">
+                            <label>Khóa công khai (JSON):</label>
+                            <textarea name="public_key_input" placeholder='{"e": 65537, "n": 123456..., "key_size": 2048}'></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>File đầu vào:</label>
+                        <input type="file" name="input_file" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tên file xuất (tùy chọn):</label>
+                        <input type="text" name="output_file" placeholder="Để trống để tự động đặt tên">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                         Mã hóa
+                    </button>
+                </form>
+                
+                <div id="encryptLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Đang mã hóa...</p>
+                </div>
+                
+                <div id="encryptMessage"></div>
+            </div>
+
+            <!-- Decrypt -->
+            <div class="section">
+                <div class="section-title">Giải mã</div>
+                
+                <div class="warning-box">
+                    <strong>Cần khóa bí mật</strong> của bạn
+                </div>
+                
+                <form id="decryptForm">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="decryptUseInput" onchange="toggleKeyInput('decrypt')">
+                        <label for="decryptUseInput" style="margin: 0;">Nhập khóa bí mật trực tiếp</label>
+                    </div>
+                    
+                    <div id="decryptKeyInput" class="key-input-area">
+                        <div class="form-group">
+                            <label>Khóa bí mật (JSON):</label>
+                            <textarea name="private_key_input" placeholder='{"d": 789012..., "n": 123456..., "key_size": 2048}'></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>File đã mã hóa:</label>
+                        <input type="file" name="input_file" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tên file xuất (tùy chọn):</label>
+                        <input type="text" name="output_file" placeholder="Để trống để tự động đặt tên">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                         Giải mã
+                    </button>
+                </form>
+                
+                <div id="decryptLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Đang giải mã...</p>
+                </div>
+                
+                <div id="decryptMessage"></div>
+            </div>
+        </div>
+
+       
+       
+    </div>
+
+    <script>
+        // Toggle key input
+        function toggleKeyInput(type) {
+            const checkbox = document.getElementById(`${type}UseInput`);
+            const keyInput = document.getElementById(`${type}KeyInput`);
+            
+            if (checkbox.checked) {
+                keyInput.classList.add('active');
+            } else {
+                keyInput.classList.remove('active');
+            }
+        }
+
+        // Generate Keys
+        document.getElementById('generateKeysForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('generateLoading');
+            const message = document.getElementById('generateMessage');
+            const formData = new FormData(e.target);
+            
+            loading.style.display = 'block';
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/generate-keys', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    message.innerHTML = `<div class="message success">${result.message}</div>`;
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    message.innerHTML = `<div class="message error">${result.error}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error">Lỗi: ${error.message}</div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Import Public Key
+        document.getElementById('importPublicKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = document.getElementById('importPublicMessage');
+            const formData = new FormData(e.target);
+            
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/import-public-key', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    message.innerHTML = `<div class="message success">${result.message}</div>`;
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    message.innerHTML = `<div class="message error">${result.error}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error"> Lỗi: ${error.message}</div>`;
+            }
+        });
+
+        // Import Private Key
+        document.getElementById('importPrivateKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = document.getElementById('importPrivateMessage');
+            const formData = new FormData(e.target);
+            
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/import-private-key', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    message.innerHTML = `<div class="message success">${result.message}</div>`;
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    message.innerHTML = `<div class="message error">${result.error}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error"> Lỗi: ${error.message}</div>`;
+            }
+        });
+
+        // Encrypt
+        document.getElementById('encryptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('encryptLoading');
+            const message = document.getElementById('encryptMessage');
+            const formData = new FormData(e.target);
+            
+            // Check if using input key
+            const useInput = document.getElementById('encryptUseInput').checked;
+            formData.append('use_input_key', useInput);
+            
+            loading.style.display = 'block';
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/encrypt', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    message.innerHTML = `
+                        <div class="message success">
+                            ${result.message}<br>
+                             File: ${result.output_file}<br>
+                           
+                        </div>
+                    `;
+                } else {
+                    message.innerHTML = `<div class="message error">${result.error}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error"> Lỗi: ${error.message}</div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Decrypt
+        document.getElementById('decryptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('decryptLoading');
+            const message = document.getElementById('decryptMessage');
+            const formData = new FormData(e.target);
+            
+            // Check if using input key
+            const useInput = document.getElementById('decryptUseInput').checked;
+            formData.append('use_input_key', useInput);
+            
+            loading.style.display = 'block';
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/decrypt', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    message.innerHTML = `
+                        <div class="message success">
+                            ${result.message}<br>
+                             File: ${result.output_file}<br>                          
+                        </div>
+                    `;
+                } else {
+                    message.innerHTML = `<div class="message error">${result.error}</div>`;
+                }
+            } catch (error) {
+                message.innerHTML = `<div class="message error"> Lỗi: ${error.message}</div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Export Public Key
+        async function exportPublicKey() {
+            try {
+                const response = await fetch('/export-public-key');
+                const result = await response.json();
+                
+                if (result.success) {
+                    downloadFile('public_key.json', result.public_key);
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('❌ Lỗi: ' + error.message);
+            }
+        }
+
+        // Export Private Key
+        async function exportPrivateKey() {
+            if (!confirm('⚠️ Khóa bí mật rất quan trọng! Bạn có chắc muốn export?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/export-private-key');
+                const result = await response.json();
+                
+                if (result.success) {
+                    downloadFile('private_key.json', result.private_key);
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('❌ Lỗi: ' + error.message);
+            }
+        }
+
+        // Download Both Keys
+        async function downloadBothKeys() {
+            try {
+                const response = await fetch('/download-keys');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const content = `RSA Keys (${result.key_size} bits)
+Generated: ${new Date().toLocaleString()}
+
+=====================================================
+PUBLIC KEY (Khóa công khai - Dùng để mã hóa)
+Có thể chia sẻ công khai
+=====================================================
+${result.public_key}
+
+=====================================================
+PRIVATE KEY (Khóa bí mật - Dùng để giải mã)
+⚠️ QUAN TRỌNG: Giữ khóa này bí mật tuyệt đối!
+=====================================================
+${result.private_key}
+`;
+                    
+                    downloadFile(`rsa_keys_${result.key_size}bits.txt`, content);
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Helper function to download file
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

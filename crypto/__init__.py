@@ -8,3 +8,4 @@ from .aes import AES
 from .des import DES
 from .tripledes import TripleDES
 from .rsa import RSA
+from .rsa_oaep import RSA_OAEP

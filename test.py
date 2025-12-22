@@ -1,10 +1,12 @@
-from crypto.des import encrypt, decrypt
+from crypto.tripledes import TripleDES
 
-data = b"HELLO DES TEST"
-key = "abc"   # ngắn vẫn OK
+# Khóa 24 bytes (3-key)
+key = b"0123456789abcdef01234567"
+tdes = TripleDES(key)
 
-enc = encrypt(data, key)
-dec = decrypt(enc, key)
+data = b"Hello TripleDES!"
+enc = tdes.encrypt(data)
+print("Encrypted:", enc.hex())
 
-print(enc)
-print(dec)
+dec = tdes.decrypt(enc)
+print("Decrypted:", dec)

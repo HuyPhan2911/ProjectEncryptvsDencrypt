@@ -1,6 +1,6 @@
 import os
-from flask import Flask, render_template, request
-
+import io
+from flask import Flask, render_template, request, send_file
 from utils import read_file, write_file
 from crypto import aes, des, tripledes, rsa
 
@@ -32,11 +32,6 @@ def index():
             "index.html",
             error="❌ Thiếu file đầu vào hoặc tên file xuất"
         )
-
-    # =============================
-    # ĐƯỜNG DẪN FILE OUTPUT
-    # =============================
-    output_path = os.path.join(OUTPUT_DIR, output_filename)
 
     # =============================
     # ĐỌC FILE
@@ -80,24 +75,26 @@ def index():
         )
 
     # =============================
-    # GHI FILE
+    # GHI FILE VÀ TRẢ VỀ TRÌNH DUYỆT
     # =============================
     try:
+        # Lưu file trong folder outputs
+        output_path = os.path.join(OUTPUT_DIR, output_filename)
         write_file(output_path, result)
+
+        # Trả file trực tiếp về browser
+        return send_file(
+            io.BytesIO(result),
+            as_attachment=True,
+            download_name=output_filename,
+            mimetype="application/octet-stream"
+        )
+
     except Exception as e:
         return render_template(
             "index.html",
-            error=f"❌ Lỗi ghi file: {str(e)}"
+            error=f"❌ Lỗi ghi hoặc trả file: {str(e)}"
         )
-
-    # =============================
-    # THÀNH CÔNG
-    # =============================
-    return render_template(
-        "index.html",
-        message="✅ Xử lý thành công!",
-        output_file=output_path
-    )
 
 
 if __name__ == "__main__":

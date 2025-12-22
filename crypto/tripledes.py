@@ -1,10 +1,9 @@
-# tdes.py
 # =====================================================
 # THUẬT TOÁN 3DES (TRIPLE DES) – CHẾ ĐỘ EDE
 # Demo học thuật – KHÔNG dùng cho bảo mật thực tế
 # =====================================================
 
-from .des import DES
+from .des import DES, pad, unpad  # import DES và hàm padding/unpadding
 
 class TripleDES:
     """
@@ -32,12 +31,10 @@ class TripleDES:
 
         # Phân tách khóa
         if len(key) == 16:
-            # 3DES 2-key: K1, K2, K1
             k1 = key[:8]
             k2 = key[8:16]
             k3 = k1
         else:
-            # 3DES 3-key: K1, K2, K3
             k1 = key[:8]
             k2 = key[8:16]
             k3 = key[16:24]
@@ -74,27 +71,25 @@ class TripleDES:
         return block
 
     # -----------------------------
-    # CHẾ ĐỘ ECB (MINH HỌA)
+    # CHẾ ĐỘ ECB VỚI PADDING PKCS#5
     # -----------------------------
 
     def encrypt(self, data: bytes) -> bytes:
         """
-        Mã hóa dữ liệu theo chế độ ECB
-        Chia dữ liệu thành các khối 8 byte
+        Mã hóa dữ liệu theo chế độ ECB với padding PKCS#5
         """
+        data = pad(data)
         result = b""
         for i in range(0, len(data), 8):
             block = data[i:i+8]
-            if len(block) < 8:
-                block += b'\x00' * (8 - len(block))  # padding đơn giản
             result += self.encrypt_block(block)
         return result
 
     def decrypt(self, data: bytes) -> bytes:
         """
-        Giải mã dữ liệu theo chế độ ECB
+        Giải mã dữ liệu theo chế độ ECB với unpad PKCS#5
         """
         result = b""
         for i in range(0, len(data), 8):
             result += self.decrypt_block(data[i:i+8])
-        return result.rstrip(b'\x00')
+        return unpad(result)
